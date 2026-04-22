@@ -6,6 +6,7 @@ from PIL import Image
 def simulate_color_blindness(image, blindness_type="protanopia"):
     img = np.array(image.convert("RGB"))
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    
     if blindness_type == "protanopia":
         matrix = np.array([
             [0.567, 0.433, 0],
@@ -26,6 +27,7 @@ def simulate_color_blindness(image, blindness_type="protanopia"):
         ])
     else:
         return image
+    
     transformed = cv2.transform(img, matrix)
     transformed = np.clip(transformed, 0, 255).astype(np.uint8)
     transformed = cv2.cvtColor(transformed, cv2.COLOR_BGR2RGB)
@@ -48,16 +50,10 @@ if uploaded_file is not None:
     with col1:
         st.subheader("原图")
         st.image(image, use_column_width=True)
+    
     with st.spinner("正在生成模拟效果..."):
         simulated_image = simulate_color_blindness(image, blindness_type)
+    
     with col2:
         st.subheader("色盲患者视角")
         st.image(simulated_image, use_column_width=True)
-    simulated_image.save("temp_simulated.png")
-    with open("temp_simulated.png", "rb") as f:
-        st.download_button(
-            label="下载模拟图片",
-            data=f,
-            file_name="color_blind_simulated.png",
-            mime="image/png"
-        )
